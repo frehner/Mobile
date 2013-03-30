@@ -11,14 +11,15 @@
     tools:context=".MainActivity" >
 
     <ViewFlipper
-        android:id="@+id/viewFlipper"
+        android:id="@+id/vf"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <include
-            android:layout_width="match_parent"
-            android:layout_height="486dp"
-            layout="@layout/login" />
+           	android:id="@+id/firstlayout" layout="@layout/login" />
+
+        <include
+           	android:id="@+id/secondlayout" layout="@layout/decision" />
 
     </ViewFlipper>
 
