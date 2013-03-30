@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
 		
 		LoginPosting lposting = new LoginPosting(username, password);
 		lposting.execute();
-		showToast("done");
+//		showToast("done");
 //		vf.setDisplayedChild(1);
 	}
 	
@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
 				// pulling the balance from the JSON object and posting it to the class variable string object "balance"
 //				balance = respobj.getString("balance");
 
-				showToast(respobj.toString());
+				showToast(respobj.getString("testing"));
 
 //				return S_response;
 			} catch (Exception e) {
