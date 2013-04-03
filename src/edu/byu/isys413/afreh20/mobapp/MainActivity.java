@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -136,6 +138,13 @@ public class MainActivity extends Activity {
 					loggedIn = true;
 					custid = respobj.getString("custid");
 					email = respobj.getString("username");
+//					Log.v("jsonTag", respobj.getString("pics"));
+					JSONArray picsJson = respobj.getJSONArray("pics");
+					for(int i = 0; i < picsJson.length(); i++){
+						JSONObject temppic = picsJson.getJSONObject(i);
+						Log.v("jsonTag", temppic.getString("picname"));
+					}
+					
 					return "success";
 				} else{
 					return "failure";
@@ -143,7 +152,7 @@ public class MainActivity extends Activity {
 
 //				return S_response;
 			} catch (Exception e) {
-				showToast("Error");
+				showToast("Error on app side");
 				Log.v("mytag", e.toString());
 			}
 			return "failed";
