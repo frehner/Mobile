@@ -36,6 +36,9 @@ import android.widget.ViewFlipper;
 public class MainActivity extends Activity {
 	
 	ViewFlipper vf = null;
+	String custid = null;
+	String email = null;
+	boolean loggedIn = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +55,25 @@ public class MainActivity extends Activity {
 	}
 	
 	public void loginbtnclick(View view){
-//		System.out.println("login");
-		EditText usernameText = (EditText) findViewById(R.id.username);
-		EditText passwordText = (EditText) findViewById(R.id.password);
-		String username = usernameText.getText().toString();
-		String password = passwordText.getText().toString();
-		
-		LoginPosting lposting = new LoginPosting(username, password);
-		lposting.execute();
-//		showToast("done");
-//		vf.setDisplayedChild(1);
+		try{
+			System.out.println("login");
+			EditText usernameText = (EditText) findViewById(R.id.username);
+			EditText passwordText = (EditText) findViewById(R.id.password);
+			String username = usernameText.getText().toString();
+			String password = passwordText.getText().toString();
+			
+			LoginPosting lposting = new LoginPosting(username, password);
+			lposting.execute();
+//			showToast("done");
+			if(lposting.get().equals("success")){
+				vf.setDisplayedChild(1);
+			}
+
+		} catch (Exception e){
+			e.printStackTrace();
+			showToast("Something failed");
+		}
+//		
 	}
 	
 	public void btntakepicclick(View view){
@@ -118,7 +130,16 @@ public class MainActivity extends Activity {
 				// pulling the balance from the JSON object and posting it to the class variable string object "balance"
 //				balance = respobj.getString("balance");
 
-				showToast(respobj.getString("testing"));
+				showToast(respobj.getString("status"));
+				if(respobj.getString("status").equals("Success")){
+//					vf.setDisplayedChild(1);
+					loggedIn = true;
+					custid = respobj.getString("custid");
+					email = respobj.getString("username");
+					return "success";
+				} else{
+					return "failure";
+				}
 
 //				return S_response;
 			} catch (Exception e) {
