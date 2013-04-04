@@ -34,7 +34,9 @@ import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -48,6 +50,7 @@ public class MainActivity extends Activity {
 	String email = null;
 	boolean loggedIn = false;
 	ArrayList<HashMap<String, String>> custPics = new ArrayList<HashMap<String, String>>();
+	ArrayList<String> picNames = new ArrayList<String>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +89,20 @@ public class MainActivity extends Activity {
 	}
 	
 	public void btntakepicclick(View view){
-//		System.out.println("login");
-		vf.setDisplayedChild(0);
+		
+//		vf.setDisplayedChild(0);
+	}
+	
+	public void viewalbum(View view){
+		vf.setDisplayedChild(2);
+		if(picNames.size() == 0){
+			picNames.add("No pics uploaded yet");
+		}
+		ListView listView = (ListView) findViewById(R.id.album);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, picNames);
+		listView.setAdapter(adapter);
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		listView.setItemsCanFocus(false);
 	}
 	
 	public void showToast(final String toast) {
@@ -166,6 +181,7 @@ public class MainActivity extends Activity {
 						//this way I can tell which pictures have been saved to our db and which haven't.
 						tempPicMap.put("alreadyInDB", "true");
 						custPics.add(tempPicMap);
+						picNames.add(temppic.getString("picname"));
 					}
 					
 					return "success";

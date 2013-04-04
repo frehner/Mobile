@@ -20,6 +20,9 @@
 
         <include
            	android:id="@+id/secondlayout" layout="@layout/decision" />
+        
+        <include
+           	android:id="@+id/thirdlayout" layout="@layout/album" />
 
     </ViewFlipper>
 
