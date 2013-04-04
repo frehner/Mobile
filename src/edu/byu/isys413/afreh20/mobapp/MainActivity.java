@@ -1,10 +1,12 @@
 package edu.byu.isys413.afreh20.mobapp;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +27,9 @@ import org.json.JSONObject;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
+import android.content.Context;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
@@ -34,6 +38,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import edu.byu.isys413.afreh20.mystuff.*;
+
 
 public class MainActivity extends Activity {
 	
@@ -41,6 +47,7 @@ public class MainActivity extends Activity {
 	String custid = null;
 	String email = null;
 	boolean loggedIn = false;
+	ArrayList<HashMap<String, String>> custPics = new ArrayList<HashMap<String, String>>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +87,7 @@ public class MainActivity extends Activity {
 	
 	public void btntakepicclick(View view){
 //		System.out.println("login");
-		vf.setDisplayedChild(1);
+		vf.setDisplayedChild(0);
 	}
 	
 	public void showToast(final String toast) {
@@ -92,6 +99,11 @@ public class MainActivity extends Activity {
 		});
 	}
 	
+	/**
+	 * Async posts the login info to the server
+	 * @author Anthony
+	 *
+	 */
 	private class LoginPosting extends AsyncTask<String, Void, String> {
 		private String username = null;
 		private String password = null;
@@ -134,15 +146,26 @@ public class MainActivity extends Activity {
 
 				showToast(respobj.getString("status"));
 				if(respobj.getString("status").equals("Success")){
-//					vf.setDisplayedChild(1);
+					
+					//Time to parse some json
+					
+					
 					loggedIn = true;
 					custid = respobj.getString("custid");
 					email = respobj.getString("username");
 //					Log.v("jsonTag", respobj.getString("pics"));
-					JSONArray picsJson = respobj.getJSONArray("pics");
+					JSONArray picsJson = new JSONArray(respobj.getString("pics"));
 					for(int i = 0; i < picsJson.length(); i++){
 						JSONObject temppic = picsJson.getJSONObject(i);
-						Log.v("jsonTag", temppic.getString("picname"));
+//						Log.v("jsonTag", temppic.getString("picname"));
+						HashMap<String, String> tempPicMap = new HashMap<String, String>();
+						tempPicMap.put("id", temppic.getString("id"));
+						tempPicMap.put("caption", temppic.getString("caption"));
+						tempPicMap.put("picname", temppic.getString("picname"));
+						tempPicMap.put("pic", temppic.getString("pic"));
+						//this way I can tell which pictures have been saved to our db and which haven't.
+						tempPicMap.put("alreadyInDB", "true");
+						custPics.add(tempPicMap);
 					}
 					
 					return "success";
