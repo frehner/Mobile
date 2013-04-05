@@ -23,6 +23,9 @@
         
         <include
            	android:id="@+id/thirdlayout" layout="@layout/album" />
+        
+        <include
+           	android:id="@+id/fourthlayout" layout="@layout/viewpic" />
 
     </ViewFlipper>
 
