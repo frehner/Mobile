@@ -62,6 +62,7 @@ public class MainActivity extends Activity {
 	ArrayList<String> picNames = new ArrayList<String>();
 	private static final int TAKE_PHOTO_CODE = 1;
 	String tempPic64;
+	String newUploadId;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,7 @@ public class MainActivity extends Activity {
 	
 	public void loginbtnclick(View view){
 		try{
-			System.out.println("login");
+//			System.out.println("login");
 			EditText usernameText = (EditText) findViewById(R.id.username);
 			EditText passwordText = (EditText) findViewById(R.id.password);
 			String username = usernameText.getText().toString();
@@ -95,8 +96,40 @@ public class MainActivity extends Activity {
 		} catch (Exception e){
 			e.printStackTrace();
 			showToast("Something failed");
+		}	
+	}
+	
+	public void savepicclick(View view){
+		try{
+			EditText picNameText = (EditText) findViewById(R.id.picname);
+			EditText captionText = (EditText) findViewById(R.id.caption);
+			String picName = picNameText.getText().toString();
+			String caption = captionText.getText().toString();
+			if(picName.trim().matches("") || caption.trim().matches("")){
+				showToast("Needs name and caption");
+			} else {
+//				showToast("good!");
+				UploadPicture upPic = new UploadPicture(picName, caption, tempPic64, custid);
+				upPic.execute();
+				if(upPic.get().equals("success")){
+//					vf.setDisplayedChild(1);
+					showToast("upload worked");
+					picNames.add(picName);
+					HashMap<String, String> reallyTemp = new HashMap<String, String>();
+					reallyTemp.put("id", newUploadId);
+					reallyTemp.put("caption", caption);
+					reallyTemp.put("picname", picName);
+					reallyTemp.put("pic", tempPic64);
+					custPics.add(reallyTemp);
+					viewalbum(view);
+				} else {
+					showToast("upload failed");
+				}
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			showToast("Failed to save");
 		}
-//		
 	}
 
 	private File getTempFile(Context context) {
@@ -136,6 +169,8 @@ public class MainActivity extends Activity {
 				ImageView imgView = (ImageView) findViewById(R.id.imageView);
 				imgView.setImageBitmap(captureBmp);
 				
+				
+				
 			} catch (Exception e){
 				e.printStackTrace();
 				showToast("fail in camera");
@@ -163,6 +198,62 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
+	
+	private class UploadPicture extends AsyncTask<String, Void, String> {
+		private String inName;
+		private String inCaption;
+		private String inPic;
+		private String inCustId;
+		
+		public UploadPicture(String nameIn, String captionIn, String picIn, String custIdIn){
+			this.inName = nameIn;
+			this.inCaption = captionIn;
+			this.inPic = picIn;
+			this.inCustId = custIdIn;
+		}
+		
+		protected String doInBackground(String... image) {
+			try {
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpPost httppost = new HttpPost("http://10.0.2.2:8080/WebCode/edu.byu.isys413.afreh20.actions.SavePicture.action");
+
+				// setting up the nameVaule pairs
+				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+				nameValuePairs.add(new BasicNameValuePair("picname", inName));
+				nameValuePairs.add(new BasicNameValuePair("caption", inCaption));
+				nameValuePairs.add(new BasicNameValuePair("pic", inPic));
+				nameValuePairs.add(new BasicNameValuePair("custId", inCustId));
+				
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+				HttpResponse response = null;
+
+				response = httpclient.execute(httppost);
+
+				HttpEntity e = response.getEntity();
+
+				JSONObject respobj = new JSONObject(EntityUtils.toString(e));
+
+				// pulling the balance from the JSON object and posting it to the class variable string object "balance"
+//				balance = respobj.getString("balance");
+
+				showToast(respobj.getString("status"));
+				if(respobj.getString("status").equals("Success")){
+					newUploadId = respobj.getString("newId");
+					return "success";
+				} else{
+					return "failure";
+				}
+				
+			} catch (Exception e){
+				e.printStackTrace();
+				showToast("Failed to upload");
+			}
+			return "failed";
+		}
+		
+	}
+	
 	
 	/**
 	 * Async posts the login info to the server
