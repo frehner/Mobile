@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/existimageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
@@ -18,7 +18,7 @@
         android:orientation="vertical" >
 
         <EditText
-            android:id="@+id/picname"
+            android:id="@+id/existpicname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -28,7 +28,7 @@
         </EditText>
 
         <EditText
-            android:id="@+id/caption"
+            android:id="@+id/existcaption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -44,15 +44,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
                 android:onClick="viewalbum"
-                android:text="Cancel Pic" />
+                android:text="View Album" />
 
             <Button
                 android:id="@+id/existsavepic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
-                android:onClick="savepicclick"
-                android:text="Save Pic" />
+                android:onClick="updatepicclick"
+                android:text="Update Pic" />
 
         </LinearLayout>
 

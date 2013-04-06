@@ -28,6 +28,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,9 +38,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.Editable;
 import android.util.Base64;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -63,6 +66,7 @@ public class MainActivity extends Activity {
 	private static final int TAKE_PHOTO_CODE = 1;
 	String tempPic64;
 	String newUploadId;
+	String tempViewPic;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +113,8 @@ public class MainActivity extends Activity {
 				showToast("Needs name and caption");
 			} else {
 //				showToast("good!");
-				UploadPicture upPic = new UploadPicture(picName, caption, tempPic64, custid);
+				boolean isNewPic = true;
+				UploadPicture upPic = new UploadPicture(picName, caption, tempPic64, custid, isNewPic);
 				upPic.execute();
 				if(upPic.get().equals("success")){
 //					vf.setDisplayedChild(1);
@@ -190,6 +195,54 @@ public class MainActivity extends Activity {
 		listView.setItemsCanFocus(false);
 	}
 	
+	public void showpicturepage(View view){
+		for(HashMap<String, String> onePic : custPics){
+			if(onePic.get("picname").equals(tempViewPic)){
+				vf.setDisplayedChild(4);
+				EditText picNameText = (EditText) findViewById(R.id.existpicname);
+				EditText captionText = (EditText) findViewById(R.id.existcaption);
+				picNameText.setText(onePic.get("picname"));
+				captionText.setText(onePic.get("caption"));
+				byte[] imageAsBytes = Base64.decode(onePic.get("pic").getBytes(), 0); 
+			    ImageView image = (ImageView)this.findViewById(R.id.existimageView);
+			    image.setImageBitmap(
+			            BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length)
+			    );
+			}
+		}
+	}
+	
+	public void viewpicture(View view){
+		ListView listView = (ListView) findViewById(R.id.album);
+		SparseBooleanArray checked = listView.getCheckedItemPositions();
+		boolean atLeastOne = false;
+        for (int i = 0; i < checked.size(); i++) {
+            if(checked.valueAt(i) == true) {
+                String checkedout = (String) listView.getItemAtPosition(checked.keyAt(i));
+//                Log.i("xxxx", i + " " + checkedout);
+                tempViewPic = checkedout;
+                showpicturepage(view);
+                atLeastOne = true;
+                break;
+            }
+        }
+        if(!atLeastOne){
+        	showToast("Select a picture");
+        }
+        
+	}
+	
+	public void purchasepics(View view){
+		ListView listView = (ListView) findViewById(R.id.album);
+		SparseBooleanArray checked = listView.getCheckedItemPositions();
+        for (int i = 0; i < checked.size(); i++) {
+            if(checked.valueAt(i) == true) {
+                String checkedout = (String) listView.getItemAtPosition(checked.keyAt(i));
+//                Log.i("xxxx", i + " " + checkedout);
+            }
+        }
+	}
+	
 	public void showToast(final String toast) {
 		runOnUiThread(new Runnable() {
 //			@Override
@@ -204,12 +257,14 @@ public class MainActivity extends Activity {
 		private String inCaption;
 		private String inPic;
 		private String inCustId;
+		private boolean inIsNewPic;
 		
-		public UploadPicture(String nameIn, String captionIn, String picIn, String custIdIn){
+		public UploadPicture(String nameIn, String captionIn, String picIn, String custIdIn, boolean isNewPicIn){
 			this.inName = nameIn;
 			this.inCaption = captionIn;
 			this.inPic = picIn;
 			this.inCustId = custIdIn;
+			this.inIsNewPic = isNewPicIn;
 		}
 		
 		protected String doInBackground(String... image) {
@@ -223,6 +278,12 @@ public class MainActivity extends Activity {
 				nameValuePairs.add(new BasicNameValuePair("caption", inCaption));
 				nameValuePairs.add(new BasicNameValuePair("pic", inPic));
 				nameValuePairs.add(new BasicNameValuePair("custId", inCustId));
+				if(inIsNewPic){
+					nameValuePairs.add(new BasicNameValuePair("newpic", "true"));
+				}else {
+					nameValuePairs.add(new BasicNameValuePair("newpic", "false"));
+				}
+				
 				
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 

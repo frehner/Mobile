@@ -26,6 +26,9 @@
         
         <include
            	android:id="@+id/fourthlayout" layout="@layout/viewpic" />
+        
+        <include
+           	android:id="@+id/fifthlayout" layout="@layout/displaypic" />
 
     </ViewFlipper>
 
