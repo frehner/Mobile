@@ -67,6 +67,7 @@ public class MainActivity extends Activity {
 	String tempPic64;
 	String newUploadId;
 	String tempViewPic;
+	String oldPictureName;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +104,74 @@ public class MainActivity extends Activity {
 		}	
 	}
 	
+	public void updatepicclick(View view){
+		try{
+			EditText picNameText = (EditText) findViewById(R.id.existpicname);
+			EditText captionText = (EditText) findViewById(R.id.existcaption);
+			String picName = picNameText.getText().toString();
+			String caption = captionText.getText().toString();
+			if(picName.trim().matches("") || caption.trim().matches("")){
+				showToast("Needs name and caption");
+			} else {
+//				showToast("good!");
+				boolean isNewPic = false;
+				String uploadPicId = null;
+				for(HashMap<String, String> tempPic : custPics){
+					if(tempPic.get("picname").equals(oldPictureName)){
+						uploadPicId = tempPic.get("id");
+					}
+				}
+				//we set the third and fourth to null because the server doesn't need them.
+				UploadPicture upPic = new UploadPicture(picName, caption, null, null, uploadPicId, isNewPic);
+				upPic.execute();
+				if(upPic.get().equals("success")){
+//					vf.setDisplayedChild(1);
+					showToast("upload worked");
+//					picNames.add(picName);
+					boolean nameChanged = true;
+					for(String name: picNames){
+						if(name.equals(picName)){
+							nameChanged = false;
+						}
+					}
+					if(nameChanged){
+						int i = 0;
+						int j = 0;
+						for(String name: picNames){
+							if(name.equals(oldPictureName)){
+								name = picName;
+								Log.v("albumupdate", name);
+								j = i;
+							}
+							i++;
+						}
+						picNames.set(j, picName);
+						for(HashMap<String, String> singlePic: custPics){
+							if(singlePic.get("picname").equals(oldPictureName)){
+								singlePic.put("picname", picName);
+								singlePic.put("caption", caption);
+							}
+						}
+					} else {
+						for(HashMap<String, String> singlePic: custPics){
+							if(singlePic.get("picname").equals(picName)){
+								singlePic.put("caption", caption);
+							}
+						}
+					}
+					
+					viewalbum(view);
+				} else {
+					showToast("upload failed");
+				}
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			showToast("Failed to save");
+		}
+	}
+	
+	
 	public void savepicclick(View view){
 		try{
 			EditText picNameText = (EditText) findViewById(R.id.picname);
@@ -114,7 +183,7 @@ public class MainActivity extends Activity {
 			} else {
 //				showToast("good!");
 				boolean isNewPic = true;
-				UploadPicture upPic = new UploadPicture(picName, caption, tempPic64, custid, isNewPic);
+				UploadPicture upPic = new UploadPicture(picName, caption, tempPic64, custid, null, isNewPic);
 				upPic.execute();
 				if(upPic.get().equals("success")){
 //					vf.setDisplayedChild(1);
@@ -163,6 +232,7 @@ public class MainActivity extends Activity {
 				// ImageView viewer = (ImageView) findViewById(R.id.pictureViewer);
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				// viewer.setImageBitmap(captureBmp);
+				@SuppressWarnings("resource")
 				InputStream in = new FileInputStream(file);
 				int count;
 				byte[] buffer = new byte[512];
@@ -184,15 +254,16 @@ public class MainActivity extends Activity {
 	}
 
 	public void viewalbum(View view){
-		vf.setDisplayedChild(2);
-//		if(picNames.size() == 0){
-//			picNames.add("No pics uploaded yet");
-//		}
+		for(String name : picNames){
+			Log.v("picnames", name);
+		}
+		
 		ListView listView = (ListView) findViewById(R.id.album);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, picNames);
 		listView.setAdapter(adapter);
 		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		listView.setItemsCanFocus(false);
+		vf.setDisplayedChild(2);
 	}
 	
 	public void showpicturepage(View view){
@@ -201,8 +272,11 @@ public class MainActivity extends Activity {
 				vf.setDisplayedChild(4);
 				EditText picNameText = (EditText) findViewById(R.id.existpicname);
 				EditText captionText = (EditText) findViewById(R.id.existcaption);
+
 				picNameText.setText(onePic.get("picname"));
 				captionText.setText(onePic.get("caption"));
+				oldPictureName = onePic.get("picname");
+//				Log.v("oldname", oldPictureName);
 				byte[] imageAsBytes = Base64.decode(onePic.get("pic").getBytes(), 0); 
 			    ImageView image = (ImageView)this.findViewById(R.id.existimageView);
 			    image.setImageBitmap(
@@ -257,14 +331,16 @@ public class MainActivity extends Activity {
 		private String inCaption;
 		private String inPic;
 		private String inCustId;
+		private String inPicId;
 		private boolean inIsNewPic;
 		
-		public UploadPicture(String nameIn, String captionIn, String picIn, String custIdIn, boolean isNewPicIn){
+		public UploadPicture(String nameIn, String captionIn, String picIn, String custIdIn, String picIdIn, boolean isNewPicIn){
 			this.inName = nameIn;
 			this.inCaption = captionIn;
 			this.inPic = picIn;
 			this.inCustId = custIdIn;
 			this.inIsNewPic = isNewPicIn;
+			this.inPicId = picIdIn;
 		}
 		
 		protected String doInBackground(String... image) {
@@ -278,6 +354,7 @@ public class MainActivity extends Activity {
 				nameValuePairs.add(new BasicNameValuePair("caption", inCaption));
 				nameValuePairs.add(new BasicNameValuePair("pic", inPic));
 				nameValuePairs.add(new BasicNameValuePair("custId", inCustId));
+				nameValuePairs.add(new BasicNameValuePair("picId", inPicId));
 				if(inIsNewPic){
 					nameValuePairs.add(new BasicNameValuePair("newpic", "true"));
 				}else {
@@ -300,7 +377,9 @@ public class MainActivity extends Activity {
 
 				showToast(respobj.getString("status"));
 				if(respobj.getString("status").equals("Success")){
-					newUploadId = respobj.getString("newId");
+					if(inIsNewPic){
+						newUploadId = respobj.getString("newId");
+					}
 					return "success";
 				} else{
 					return "failure";

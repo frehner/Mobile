@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
                 android:onClick="viewalbum"
-                android:text="Cancel Pic" />
+                android:text="Cancel" />
 
             <Button
                 android:id="@+id/existsavepic"
