@@ -29,6 +29,9 @@
         
         <include
            	android:id="@+id/fifthlayout" layout="@layout/displaypic" />
+        
+        <include
+           	android:id="@+id/sixthlayout" layout="@layout/purchase" />
 
     </ViewFlipper>
 

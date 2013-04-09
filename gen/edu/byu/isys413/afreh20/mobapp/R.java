@@ -25,30 +25,45 @@ public final class R {
     }
     public static final class id {
         public static final int LinearLayout1=0x7f080000;
-        public static final int action_settings=0x7f080018;
-        public static final int album=0x7f080007;
-        public static final int albumtakepic=0x7f080008;
-        public static final int cancelpic=0x7f080010;
-        public static final int caption=0x7f080017;
-        public static final int existcaption=0x7f08000f;
-        public static final int existimageView=0x7f08000d;
-        public static final int existpicname=0x7f08000e;
-        public static final int existsavepic=0x7f080011;
+        public static final int action_settings=0x7f080027;
+        public static final int album=0x7f080008;
+        public static final int albumtakepic=0x7f080009;
+        public static final int cancelpic=0x7f080011;
+        public static final int caption=0x7f080026;
+        public static final int existcaption=0x7f080010;
+        public static final int existimageView=0x7f08000e;
+        public static final int existpicname=0x7f08000f;
+        public static final int existsavepic=0x7f080012;
         public static final int fifthlayout=0x7f080006;
         public static final int firstlayout=0x7f080002;
         public static final int fourthlayout=0x7f080005;
-        public static final int imageView=0x7f080015;
-        public static final int login=0x7f080014;
-        public static final int password=0x7f080013;
-        public static final int picname=0x7f080016;
-        public static final int purchase=0x7f08000a;
+        public static final int imageView=0x7f080024;
+        public static final int login=0x7f080015;
+        public static final int numberPicker=0x7f080019;
+        public static final int password=0x7f080014;
+        public static final int picname=0x7f080025;
+        public static final int purchase=0x7f08000b;
+        public static final int radio3x5=0x7f08001c;
+        public static final int radio5x8=0x7f08001d;
+        public static final int radioGlossy=0x7f080021;
+        public static final int radioMatte=0x7f080020;
         public static final int secondlayout=0x7f080003;
-        public static final int takepic=0x7f08000c;
+        public static final int sixthlayout=0x7f080007;
+        public static final int sizeGroup=0x7f08001b;
+        public static final int styleGroup=0x7f08001f;
+        public static final int takepic=0x7f08000d;
+        public static final int textView1=0x7f080018;
+        public static final int textView2=0x7f08001a;
+        public static final int textView3=0x7f08001e;
+        public static final int textView4=0x7f080022;
+        public static final int textView5=0x7f080016;
+        public static final int textViewPicsSelected=0x7f080017;
+        public static final int textViewTotal=0x7f080023;
         public static final int thirdlayout=0x7f080004;
-        public static final int username=0x7f080012;
+        public static final int username=0x7f080013;
         public static final int vf=0x7f080001;
-        public static final int viewalbum=0x7f08000b;
-        public static final int viewpic=0x7f080009;
+        public static final int viewalbum=0x7f08000c;
+        public static final int viewpic=0x7f08000a;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -56,7 +71,8 @@ public final class R {
         public static final int decision=0x7f030002;
         public static final int displaypic=0x7f030003;
         public static final int login=0x7f030004;
-        public static final int viewpic=0x7f030005;
+        public static final int purchase=0x7f030005;
+        public static final int viewpic=0x7f030006;
     }
     public static final class menu {
         public static final int main=0x7f070000;

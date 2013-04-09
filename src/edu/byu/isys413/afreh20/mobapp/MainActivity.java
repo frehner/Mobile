@@ -49,6 +49,11 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.NumberPicker.OnValueChangeListener;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -68,6 +73,11 @@ public class MainActivity extends Activity {
 	String newUploadId;
 	String tempViewPic;
 	String oldPictureName;
+	ArrayList<HashMap<String, String>> purchasePics = new ArrayList<HashMap<String, String>>();
+	int picSize = 0;
+	int picStyle = 0;
+	int picQuantity = 1;
+	TextView printTotal;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -269,7 +279,7 @@ public class MainActivity extends Activity {
 	public void showpicturepage(View view){
 		for(HashMap<String, String> onePic : custPics){
 			if(onePic.get("picname").equals(tempViewPic)){
-				vf.setDisplayedChild(4);
+				
 				EditText picNameText = (EditText) findViewById(R.id.existpicname);
 				EditText captionText = (EditText) findViewById(R.id.existcaption);
 
@@ -282,6 +292,7 @@ public class MainActivity extends Activity {
 			    image.setImageBitmap(
 			            BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length)
 			    );
+			    vf.setDisplayedChild(4);
 			}
 		}
 	}
@@ -309,12 +320,101 @@ public class MainActivity extends Activity {
 	public void purchasepics(View view){
 		ListView listView = (ListView) findViewById(R.id.album);
 		SparseBooleanArray checked = listView.getCheckedItemPositions();
+		ArrayList<String> purchaseNames = new ArrayList<String>();
         for (int i = 0; i < checked.size(); i++) {
             if(checked.valueAt(i) == true) {
                 String checkedout = (String) listView.getItemAtPosition(checked.keyAt(i));
 //                Log.i("xxxx", i + " " + checkedout);
+                purchaseNames.add(checkedout);
+//                Log.v("purchaseTag", "added to purchase names");
             }
         }
+//        Log.v("purchaseTag", "before size bigger than 0");
+        if(purchaseNames.size() != 0){
+//        	Log.v("purchaseTag", "size bigger than 0");
+        	purchasePics.clear();
+        	for(String purchaseName : purchaseNames){
+        		for(HashMap<String, String> tempPic : custPics){
+        			if(tempPic.get("picname").equals(purchaseName)){
+        				HashMap<String, String> tempMap = new HashMap<String, String>();
+        				tempMap.put("id", tempPic.get("id"));
+        				tempMap.put("picname", tempPic.get("picname"));
+        				purchasePics.add(tempMap);
+//        				Log.v("purchaseTag", "added to purchasepics");
+        			}
+        		}
+        	}
+        	//TODO
+        	NumberPicker quantity = (NumberPicker) findViewById(R.id.numberPicker);
+        	quantity.setMaxValue(99);
+        	quantity.setMinValue(1);
+        	TextView numPicsSelected = (TextView) findViewById(R.id.textViewPicsSelected);
+        	numPicsSelected.setText(purchasePics.size()+"");
+        	printTotal = (TextView) findViewById(R.id.textViewTotal);
+        	printTotal.setText("$"+purchasePics.size()+".00");
+        	
+        	//the change listener for the spinner
+        	OnValueChangeListener onChangeListener = new OnValueChangeListener(){
+        		public void onValueChange(NumberPicker picker, int oldVal, int newVal){
+        			picQuantity = newVal;
+        			updatePrintTotal();
+        		}
+        	};
+        	quantity.setOnValueChangedListener(onChangeListener);
+        	
+        	//now the change listeners on the radiogroups
+        	final RadioGroup radioSize = (RadioGroup) findViewById(R.id.sizeGroup);
+        	radioSize.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+				public void onCheckedChanged(RadioGroup group, int checkedId) {
+					RadioButton checkedRadio = (RadioButton) radioSize.findViewById(checkedId);
+					if(checkedRadio.getText().equals("3X5")){
+						picSize = 0;
+					} else {
+						picSize = 1;
+					}
+					updatePrintTotal();
+				}
+			});
+        	
+        	//for the second radio group now
+        	final RadioGroup radioStyle = (RadioGroup) findViewById(R.id.styleGroup);
+        	radioStyle.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+				public void onCheckedChanged(RadioGroup group, int checkedId) {
+					RadioButton checkedRadio = (RadioButton) radioStyle.findViewById(checkedId);
+					if(checkedRadio.getText().equals("Glossy")){
+						picStyle = 0;
+					} else {
+						picStyle = 1;
+					}
+					updatePrintTotal();
+				}
+			});
+        	
+        	vf.setDisplayedChild(5);
+        } else {
+        	showToast("Select picture(s)");
+        }
+        
+	}
+	
+	public void updatePrintTotal(){
+//		showToast(picQuantity+"");
+//		showToast(picSize+"");
+//		showToast(picStyle+"");
+		//we now have to do four different situation for each size and style combo
+		if(picSize == 0 && picStyle == 0){
+			//3x5 glossy, so $1 per print
+			printTotal.setText("$"+purchasePics.size()*picQuantity+".00");
+		} else if(picSize == 1 && picStyle == 0){
+			//5x8 glossy, so $3 per print
+			printTotal.setText("$"+purchasePics.size()*picQuantity*3+".00");
+		} else if(picSize == 0 && picStyle == 1){
+			//3x5 matte, so $2 per print
+			printTotal.setText("$"+purchasePics.size()*picQuantity*2+".00");
+		} else if(picSize == 1 && picStyle == 1){
+			//5x8 matte, so $4 per print
+			printTotal.setText("$"+purchasePics.size()*picQuantity*4+".00");
+		}
 	}
 	
 	public void showToast(final String toast) {
