@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +58,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import edu.byu.isys413.afreh20.mystuff.*;
+//import edu.byu.isys413.afreh20.mystuff.*;
 
 
 public class MainActivity extends Activity {
@@ -424,6 +425,74 @@ public class MainActivity extends Activity {
 				Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
+	
+	public void finalpurchase(View view){
+		TextView textPrice = (TextView)findViewById(R.id.textViewTotal);
+		String stringPrice = (String) textPrice.getText();
+		double realPrice = Double.parseDouble(stringPrice.substring(1));
+		PurchasePic purPic = new PurchasePic(realPrice);
+		purPic.execute();
+		try {
+			if(purPic.get().equals("success")){
+				showToast("Purchase complete");
+				viewalbum(view);
+			}else {
+				showToast("not all good here");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			showToast("not all good here2");
+		} 
+		
+	}
+	
+	private class PurchasePic extends AsyncTask<String, Void, String> {
+		private double price;
+		public PurchasePic (double priceIn){
+			this.price = priceIn;
+		}
+		protected String doInBackground(String... image) {
+			try {
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpPost httppost = new HttpPost("http://10.0.2.2:8080/WebCode/edu.byu.isys413.afreh20.actions.PurchasePictures.action");
+
+				// setting up the nameVaule pairs
+				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+				nameValuePairs.add(new BasicNameValuePair("price", price+""));
+				nameValuePairs.add(new BasicNameValuePair("style", picStyle+""));
+				nameValuePairs.add(new BasicNameValuePair("size", picSize+""));
+				nameValuePairs.add(new BasicNameValuePair("custid", custid));
+				nameValuePairs.add(new BasicNameValuePair("quantity", picQuantity+""));
+				ArrayList<String> picIds = new ArrayList<String>();
+				for(HashMap<String, String> temppurch: purchasePics){
+					picIds.add(temppurch.get("id"));
+				}
+				nameValuePairs.add(new BasicNameValuePair("pics", picIds.toString()));
+//				System.out.println(picIds.toString());
+				
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+				HttpResponse response = null;
+
+				response = httpclient.execute(httppost);
+
+				HttpEntity e = response.getEntity();
+
+				JSONObject respobj = new JSONObject(EntityUtils.toString(e));
+				if(respobj.getString("status").equals("Success")){
+					return "success";
+				}else {
+					return "failure";
+				}
+				
+				
+			} catch (Exception e){
+				e.printStackTrace();
+//				showToast("failed");
+				return "failed";
+			}
+		}
 	}
 	
 	private class UploadPicture extends AsyncTask<String, Void, String> {
